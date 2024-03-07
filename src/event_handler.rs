@@ -1,5 +1,5 @@
 use rs_zephyr_sdk::{
-    stellar_xdr::next::{ContractEventV0, ScVal, Uint32},
+    stellar_xdr::next::{ContractEventV0, Hash, ScVal, Uint32},
     utils, EnvClient,
 };
 
@@ -30,7 +30,7 @@ impl EventTypes {
 /// - data - `[support: u32, amount: i128]`
 pub fn handle_vote_cast(
     env: &EnvClient,
-    contract_id: [u8; 32],
+    contract_id: Hash,
     event: &ContractEventV0,
     ledger_sequence: u32,
 ) {
@@ -81,7 +81,7 @@ pub fn handle_vote_cast(
 /// - data - `[title: String, desc: String, calldata: Calldata, sub_calldata: SubCallData]`
 pub fn handle_proposal_created(
     env: &EnvClient,
-    contract_id: [u8; 32],
+    contract_id: Hash,
     event: &ContractEventV0,
     ledger_sequence: u32,
 ) {
@@ -139,7 +139,7 @@ pub fn handle_proposal_created(
 /// - data - `[]`
 pub fn handle_proposal_updated(
     env: &EnvClient,
-    contract_id: [u8; 32],
+    contract_id: Hash,
     event: &ContractEventV0,
     ledger_sequence: u32,
 ) {

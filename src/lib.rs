@@ -22,10 +22,9 @@ pub extern "C" fn on_close() {
             if let Some(soroban) = &meta.soroban_meta {
                 if !soroban.events.is_empty() {
                     for event in soroban.events.iter() {
-                        let contract_id = event.contract_id.as_ref().unwrap().0;
-                        if let Some(contract_hash) = event.contract_id {
+                        if let Some(contract_id) = event.contract_id.clone() {
                             // ScAddress::from_hash() is not implemented yet?
-                            let contract_id = contract_hash.0;
+
                             match &event.body {
                                 ContractEventBody::V0(v0) => {
                                     if let Some(topic0) = v0.topics.get(0) {
