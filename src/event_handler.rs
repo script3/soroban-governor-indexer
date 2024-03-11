@@ -1,5 +1,5 @@
 use rs_zephyr_sdk::{
-    stellar_xdr::next::{ContractEventV0, Hash, ScVal, Uint32},
+    stellar_xdr::next::{ContractEventV0, Hash, ScVal},
     utils, EnvClient,
 };
 
@@ -32,13 +32,10 @@ pub fn handle_vote_cast(
     env: &EnvClient,
     contract_id: Hash,
     event: &ContractEventV0,
-    ledger_sequence: u32,
+    ledger_sequence: ScVal,
 ) {
     let proposal_number = match event.topics.get(1).cloned() {
-        Some(topic) => match Uint32::try_from(topic) {
-            Ok(num) => num,
-            Err(_) => return,
-        },
+        Some(topic) => topic,
         None => return,
     };
     let voter = match event.topics.get(2).cloned() {
@@ -49,14 +46,11 @@ pub fn handle_vote_cast(
     if let ScVal::Vec(data_opt) = &event.data {
         if let Some(data) = data_opt {
             let support = match data.get(0).cloned() {
-                Some(topic) => match Uint32::try_from(topic) {
-                    Ok(num) => num,
-                    Err(_) => return,
-                },
+                Some(data) => data,
                 None => return,
             };
-            let amount = match event.topics.get(1).cloned() {
-                Some(topic) => topic,
+            let amount = match data.get(1).cloned() {
+                Some(data) => data,
                 None => return,
             };
 
@@ -78,18 +72,15 @@ pub fn handle_vote_cast(
 /// Returns None if the event is not a proposal_created event, or the data was malormed
 ///
 /// - topics - `["proposal_created", proposal_id: u32, proposer: Address]`
-/// - data - `[title: String, desc: String, calldata: Calldata, sub_calldata: SubCallData]`
+/// - data - `[title: String, desc: String, action: ProposalAction]`
 pub fn handle_proposal_created(
     env: &EnvClient,
     contract_id: Hash,
     event: &ContractEventV0,
-    ledger_sequence: u32,
+    ledger_sequence: ScVal,
 ) {
     let proposal_number = match event.topics.get(1).cloned() {
-        Some(topic) => match Uint32::try_from(topic) {
-            Ok(num) => num,
-            Err(_) => return,
-        },
+        Some(topic) => topic,
         None => return,
     };
     let proposer = match event.topics.get(2).cloned() {
@@ -99,15 +90,15 @@ pub fn handle_proposal_created(
     if let ScVal::Vec(data_opt) = &event.data {
         if let Some(data) = data_opt {
             let title = match data.get(0).cloned() {
-                Some(topic) => topic,
+                Some(data) => data,
                 None => return,
             };
             let desc = match data.get(1).cloned() {
-                Some(topic) => topic,
+                Some(data) => data,
                 None => return,
             };
             let action = match data.get(2).cloned() {
-                Some(topic) => topic,
+                Some(data) => data,
                 None => return,
             };
 
@@ -118,7 +109,7 @@ pub fn handle_proposal_created(
                 desc,
                 action,
                 creator: proposer,
-                status: 0,
+                status: ScVal::U32(0),
                 ledger: ledger_sequence,
             };
             db::write_proposal(env, proposal);
@@ -136,20 +127,14 @@ pub fn handle_proposal_updated(
     env: &EnvClient,
     contract_id: Hash,
     event: &ContractEventV0,
-    ledger_sequence: u32,
+    ledger_sequence: ScVal,
 ) {
     let proposal_number = match event.topics.get(1).cloned() {
-        Some(topic) => match Uint32::try_from(topic) {
-            Ok(num) => num,
-            Err(_) => return,
-        },
+        Some(topic) => topic,
         None => return,
     };
     let status = match event.topics.get(2).cloned() {
-        Some(topic) => match Uint32::try_from(topic) {
-            Ok(num) => num,
-            Err(_) => return,
-        },
+        Some(topic) => topic,
         None => return,
     };
 

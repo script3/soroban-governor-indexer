@@ -1,5 +1,5 @@
 use rs_zephyr_sdk::{
-    stellar_xdr::next::{ContractEventBody, TransactionMeta},
+    stellar_xdr::next::{ContractEventBody, ScVal, TransactionMeta},
     EnvClient,
 };
 
@@ -14,7 +14,7 @@ pub enum GovernorError {
 pub extern "C" fn on_close() {
     let env = EnvClient::new();
     let reader = env.reader();
-    let ledger_sequence = reader.ledger_sequence();
+    let ledger_sequence = ScVal::U32(reader.ledger_sequence());
     let processing = reader.tx_processing();
     let event_types = event_handler::EventTypes::new();
     for tx_processing in processing {

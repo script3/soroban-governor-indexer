@@ -1,31 +1,31 @@
-use rs_zephyr_sdk::{
-    bincode, stellar_xdr::next::{Hash, ScVal}, Condition, DatabaseDerive, DatabaseInteract, EnvClient, ZephyrVal
-};
-use std::convert::TryInto;
 use crate::GovernorError;
+use rs_zephyr_sdk::{
+    stellar_xdr::next::{Hash, ScVal},
+    Condition, DatabaseDerive, DatabaseInteract, EnvClient,
+};
 
 #[derive(DatabaseDerive, Clone)]
 #[with_name("proposals")]
 pub struct Proposal {
-    pub contract: Hash,     // governor contract address
-    pub prop_num: u32,      // proposal number
-    pub title: ScVal,       // scval type -> string
-    pub desc: ScVal,        // scval type -> string
-    pub action: ScVal,      // custom scval type -> ProposalAction
-    pub creator: ScVal,    // scavl type -> address
-    pub status: u32,        // proposal status
-    pub ledger: u32,        // created time (sequence)
+    pub contract: Hash,  // governor contract address
+    pub prop_num: ScVal, // proposal number
+    pub title: ScVal,    // scval type -> string
+    pub desc: ScVal,     // scval type -> string
+    pub action: ScVal,   // custom scval type -> ProposalAction
+    pub creator: ScVal,  // scavl type -> address
+    pub status: ScVal,   // proposal status
+    pub ledger: ScVal,   // created time (sequence)
 }
 
 #[derive(DatabaseDerive, Clone)]
 #[with_name("votes")]
 pub struct Votes {
-    pub contract: Hash,     // governor contract address
-    pub prop_num: u32,      // proposal number
-    pub user: ScVal,        // user who voted
-    pub support: u32,       // vote type
-    pub amount: ScVal,      // votes cast
-    pub ledger: u32,        // sequence
+    pub contract: Hash,  // governor contract address
+    pub prop_num: ScVal, // proposal number
+    pub user: ScVal,     // user who voted
+    pub support: ScVal,  // vote type
+    pub amount: ScVal,   // votes cast
+    pub ledger: ScVal,   // sequence
 }
 
 /// Write a new proposal entry to the database
@@ -38,9 +38,9 @@ pub fn write_proposal(env: &EnvClient, proposal: Proposal) {
 /// Errors if the proposal could not be found
 pub fn update_proposal_status(
     env: &EnvClient,
-    new_status: u32,
+    new_status: ScVal,
     contract: Hash,
-    prop_num: u32,
+    prop_num: ScVal,
 ) -> Result<(), GovernorError> {
     let proposals = env.read::<Proposal>();
 
@@ -52,19 +52,16 @@ pub fn update_proposal_status(
         .iter()
         .find(|p| p.prop_num == prop_num && p.contract == contract)
     {
-        let mut proposal = proposal.clone();        
+        let mut proposal = proposal.clone();
         proposal.status = new_status;
-        
-        env.update(&proposal, &[
-            Condition::ColumnEqualTo(
-                "contract".into(), 
-                bincode::serialize(&contract).unwrap()
-            ),
-            Condition::ColumnEqualTo(
-                "prop_num".into(),
-                bincode::serialize(&ZephyrVal::U32(prop_num)).unwrap()
-            )
-        ]);
+
+        env.update(
+            &proposal,
+            &[
+                Condition::ColumnEqualTo("contract".into(), bincode::serialize(&contract).unwrap()),
+                Condition::ColumnEqualTo("prop_num".into(), bincode::serialize(&prop_num).unwrap()),
+            ],
+        );
         Ok(())
     } else {
         Err(GovernorError::ProposalNotFound)
