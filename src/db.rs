@@ -7,13 +7,12 @@ use crate::GovernorError;
 #[derive(DatabaseDerive, Clone)]
 #[with_name("proposals")]
 pub struct Proposal {
-    pub contract: Hash, // governor contract address
+    pub contract: Hash,     // governor contract address
     pub prop_num: u32,      // proposal number
     pub title: ScVal,       // scval type -> string
     pub desc: ScVal,        // scval type -> string
-    pub calldata: ScVal,    // custom scval type -> CallData
-    pub sub_auths: ScVal,   // custom scval type -> SubCallData
-    pub proposer: ScVal,    // scavl type -> address
+    pub action: ScVal,      // custom scval type -> ProposalAction
+    pub creator: ScVal,    // scavl type -> address
     pub status: u32,        // proposal status
     pub ledger: u32,        // created time (sequence)
 }
@@ -21,7 +20,7 @@ pub struct Proposal {
 #[derive(DatabaseDerive, Clone)]
 #[with_name("votes")]
 pub struct Votes {
-    pub contract: Hash, // governor contract address
+    pub contract: Hash,     // governor contract address
     pub prop_num: u32,      // proposal number
     pub user: ScVal,        // user who voted
     pub support: u32,       // vote type

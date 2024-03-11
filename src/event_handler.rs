@@ -106,11 +106,7 @@ pub fn handle_proposal_created(
                 Some(topic) => topic,
                 None => return,
             };
-            let calldata = match data.get(2).cloned() {
-                Some(topic) => topic,
-                None => return,
-            };
-            let sub_auths = match data.get(3).cloned() {
+            let action = match data.get(2).cloned() {
                 Some(topic) => topic,
                 None => return,
             };
@@ -120,9 +116,8 @@ pub fn handle_proposal_created(
                 prop_num: proposal_number,
                 title,
                 desc,
-                calldata,
-                sub_auths,
-                proposer,
+                action,
+                creator: proposer,
                 status: 0,
                 ledger: ledger_sequence,
             };
