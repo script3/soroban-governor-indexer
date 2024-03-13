@@ -1,0 +1,65 @@
+name = "sg-events-tracker"
+
+[[tables]]
+name = "proposals"
+
+[[tables.columns]]
+name = "contract"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "prop_num"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "title"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "descr"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "action"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "creator"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "status"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "ledger"
+col_type = "BYTEA"
+
+
+
+[[tables]]
+name = "votes"
+
+[[tables.columns]]
+name = "contract"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "prop_num"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "voter"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "support"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "amount"
+col_type = "BYTEA"
+
+[[tables.columns]]
+name = "ledger"
+col_type = "BYTEA"

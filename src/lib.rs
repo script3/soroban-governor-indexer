@@ -35,21 +35,21 @@ pub extern "C" fn on_close() {
                                                 &env,
                                                 contract_id,
                                                 &v0,
-                                                ledger_sequence,
+                                                ledger_sequence.clone(),
                                             );
                                         } else if topic0 == &event_types.proposal_created {
                                             event_handler::handle_proposal_created(
                                                 &env,
                                                 contract_id,
                                                 &v0,
-                                                ledger_sequence,
+                                                ledger_sequence.clone(),
                                             );
                                         } else if topic0 == &event_types.proposal_updated {
                                             event_handler::handle_proposal_updated(
                                                 &env,
                                                 contract_id,
                                                 &v0,
-                                                ledger_sequence,
+                                                ledger_sequence.clone(),
                                             );
                                         } else {
                                             // untracked event occurred

@@ -1,6 +1,6 @@
 use crate::GovernorError;
 use rs_zephyr_sdk::{
-    stellar_xdr::next::{Hash, ScVal},
+    stellar_xdr::next::{Hash, ScVal, WriteXdr, ReadXdr, Limits},
     Condition, DatabaseDerive, DatabaseInteract, EnvClient,
 };
 
@@ -10,7 +10,7 @@ pub struct Proposal {
     pub contract: Hash,  // governor contract address
     pub prop_num: ScVal, // proposal number
     pub title: ScVal,    // scval type -> string
-    pub desc: ScVal,     // scval type -> string
+    pub descr: ScVal,     // scval type -> string
     pub action: ScVal,   // custom scval type -> ProposalAction
     pub creator: ScVal,  // scavl type -> address
     pub status: ScVal,   // proposal status
@@ -22,7 +22,7 @@ pub struct Proposal {
 pub struct Votes {
     pub contract: Hash,  // governor contract address
     pub prop_num: ScVal, // proposal number
-    pub user: ScVal,     // user who voted
+    pub voter: ScVal,     // user who voted
     pub support: ScVal,  // vote type
     pub amount: ScVal,   // votes cast
     pub ledger: ScVal,   // sequence
@@ -58,8 +58,8 @@ pub fn update_proposal_status(
         env.update(
             &proposal,
             &[
-                Condition::ColumnEqualTo("contract".into(), bincode::serialize(&contract).unwrap()),
-                Condition::ColumnEqualTo("prop_num".into(), bincode::serialize(&prop_num).unwrap()),
+                Condition::ColumnEqualTo("contract".into(), contract.to_xdr(Limits::none()).unwrap()),
+                Condition::ColumnEqualTo("prop_num".into(), prop_num.to_xdr(Limits::none()).unwrap()),
             ],
         );
         Ok(())
