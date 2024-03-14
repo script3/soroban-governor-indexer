@@ -57,7 +57,7 @@ pub fn handle_vote_cast(
             let votes = db::Votes {
                 contract: contract_id,
                 prop_num: proposal_number,
-                user: voter,
+                voter,
                 support,
                 amount,
                 ledger: ledger_sequence,
@@ -93,7 +93,7 @@ pub fn handle_proposal_created(
                 Some(data) => data,
                 None => return,
             };
-            let desc = match data.get(1).cloned() {
+            let descr = match data.get(1).cloned() {
                 Some(data) => data,
                 None => return,
             };
@@ -106,7 +106,7 @@ pub fn handle_proposal_created(
                 contract: contract_id,
                 prop_num: proposal_number,
                 title,
-                desc,
+                descr,
                 action,
                 creator: proposer,
                 status: ScVal::U32(0),
@@ -127,7 +127,7 @@ pub fn handle_proposal_updated(
     env: &EnvClient,
     contract_id: Hash,
     event: &ContractEventV0,
-    ledger_sequence: ScVal,
+    _ledger_sequence: ScVal,
 ) {
     let proposal_number = match event.topics.get(1).cloned() {
         Some(topic) => topic,
@@ -138,5 +138,5 @@ pub fn handle_proposal_updated(
         None => return,
     };
 
-    db::update_proposal_status(env, status, contract_id, proposal_number);
+    let _ = db::update_proposal_status(env, status, contract_id, proposal_number);
 }
