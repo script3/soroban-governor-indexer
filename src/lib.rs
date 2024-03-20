@@ -23,13 +23,9 @@ pub extern "C" fn on_close() {
                 if !soroban.events.is_empty() {
                     for event in soroban.events.iter() {
                         if let Some(contract_id) = event.contract_id.clone() {
-                            // ScAddress::from_hash() is not implemented yet?
-
                             match &event.body {
                                 ContractEventBody::V0(v0) => {
                                     if let Some(topic0) = v0.topics.get(0) {
-                                        // TODO: Handle failures? Probably don't want to panic anywhere in this thread otherwise
-                                        //       events will get missed.
                                         if topic0 == &event_types.vote_cast {
                                             event_handler::handle_vote_cast(
                                                 &env,
@@ -42,14 +38,33 @@ pub extern "C" fn on_close() {
                                                 &env,
                                                 contract_id,
                                                 &v0,
-                                                ledger_sequence.clone(),
                                             );
-                                        } else if topic0 == &event_types.proposal_updated {
+                                        } else if topic0 == &event_types.proposal_canceled {
                                             event_handler::handle_proposal_updated(
                                                 &env,
                                                 contract_id,
                                                 &v0,
-                                                ledger_sequence.clone(),
+                                                ScVal::U32(5),
+                                            );
+                                        } else if topic0 == &event_types.proposal_executed {
+                                            event_handler::handle_proposal_updated(
+                                                &env,
+                                                contract_id,
+                                                &v0,
+                                                ScVal::U32(4),
+                                            );
+                                        } else if topic0 == &event_types.proposal_expired {
+                                            event_handler::handle_proposal_updated(
+                                                &env,
+                                                contract_id,
+                                                &v0,
+                                                ScVal::U32(3),
+                                            );
+                                        } else if topic0 == &event_types.proposal_voting_closed {
+                                            event_handler::handle_proposal_voting_closed(
+                                                &env,
+                                                contract_id,
+                                                &v0,
                                             );
                                         } else {
                                             // untracked event occurred
