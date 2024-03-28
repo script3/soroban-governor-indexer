@@ -32,11 +32,11 @@ name = "status"
 col_type = "BYTEA"
 
 [[tables.columns]]
-name = "start"
+name = "v_start"
 col_type = "BYTEA"
 
 [[tables.columns]]
-name = "end"
+name = "v_end"
 col_type = "BYTEA"
 
 [[tables.columns]]

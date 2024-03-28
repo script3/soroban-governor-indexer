@@ -14,8 +14,8 @@ pub struct Proposal {
     pub action: ScVal,   // custom scval type -> ProposalAction
     pub creator: ScVal,  // scavl type -> address
     pub status: ScVal,   // proposal status
-    pub start: ScVal,   // vote start ledger
-    pub end: ScVal,     // vote end ledger
+    pub v_start: ScVal,   // vote start ledger
+    pub v_end: ScVal,     // vote end ledger
     pub eta: ScVal,     // execution eta, or zero if no execution scheduled
     pub votes: ScVal,   // final votes at voting close
 }

@@ -123,8 +123,8 @@ pub fn handle_proposal_created(
                 action,
                 creator: proposer,
                 status: ScVal::U32(0),
-                start: vote_start,
-                end: vote_end,
+                v_start: vote_start,
+                v_end: vote_end,
                 eta: ScVal::U32(0),
                 votes: ScVal::Void,
             };
@@ -173,7 +173,7 @@ pub fn handle_proposal_voting_closed(
         Some(topic) => topic,
         None => return,
     };
-    let eta = match event.topics.get(2).cloned() {
+    let eta = match event.topics.get(3).cloned() {
         Some(topic) => topic,
         None => return,
     };
