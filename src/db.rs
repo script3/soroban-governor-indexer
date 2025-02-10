@@ -1,23 +1,24 @@
 use crate::GovernorError;
-use rs_zephyr_sdk::{
-    stellar_xdr::next::{Hash, ScVal, WriteXdr, ReadXdr, Limits},
+use zephyr_sdk::{
+    soroban_sdk::xdr::{Hash, Limits, ReadXdr, ScVal, WriteXdr},
     Condition, DatabaseDerive, DatabaseInteract, EnvClient,
 };
 
 #[derive(DatabaseDerive, Clone)]
 #[with_name("proposals")]
 pub struct Proposal {
-    pub contract: Hash,  // governor contract address
-    pub prop_num: ScVal, // proposal number
-    pub title: ScVal,    // scval type -> string
-    pub descr: ScVal,     // scval type -> string
-    pub action: ScVal,   // custom scval type -> ProposalAction
-    pub creator: ScVal,  // scavl type -> address
-    pub status: ScVal,   // proposal status
-    pub v_start: ScVal,   // vote start ledger
-    pub v_end: ScVal,     // vote end ledger
-    pub eta: ScVal,     // execution eta, or zero if no execution scheduled
-    pub votes: ScVal,   // final votes at voting close
+    pub contract: Hash,                 // governor contract address
+    pub prop_num: ScVal,                // proposal number
+    pub title: ScVal,                   // scval type -> string
+    pub descr: ScVal,                   // scval type -> string
+    pub action: ScVal,                  // custom scval type -> ProposalAction
+    pub creator: ScVal,                 // scavl type -> address
+    pub status: ScVal,                  // proposal status
+    pub v_start: ScVal,                 // vote start ledger
+    pub v_end: ScVal,                   // vote end ledger
+    pub eta: ScVal,                     // execution eta, or zero if no execution scheduled
+    pub votes: ScVal,                   // final votes at voting close
+    pub proposal_execution_hash: ScVal, // hash of the proposal execution
 }
 
 #[derive(DatabaseDerive, Clone)]
@@ -25,7 +26,7 @@ pub struct Proposal {
 pub struct Votes {
     pub contract: Hash,  // governor contract address
     pub prop_num: ScVal, // proposal number
-    pub voter: ScVal,     // user who voted
+    pub voter: ScVal,    // user who voted
     pub support: ScVal,  // vote type
     pub amount: ScVal,   // votes cast
     pub ledger: ScVal,   // sequence
@@ -55,13 +56,17 @@ pub fn update_proposal_status(
         let mut proposal = proposal.clone();
         proposal.status = new_status;
 
-        env.update(
-            &proposal,
-            &[
-                Condition::ColumnEqualTo("contract".into(), contract.to_xdr(Limits::none()).unwrap()),
-                Condition::ColumnEqualTo("prop_num".into(), prop_num.to_xdr(Limits::none()).unwrap()),
-            ],
-        );
+        env.update()
+            .column_equal_to_bytes(
+                "contract",
+                contract.to_xdr(Limits::none()).unwrap().as_slice(),
+            )
+            .column_equal_to_bytes(
+                "prop_num",
+                prop_num.to_xdr(Limits::none()).unwrap().as_slice(),
+            )
+            .execute(&proposal)
+            .unwrap();
         Ok(())
     } else {
         Err(GovernorError::ProposalNotFound)
@@ -91,13 +96,49 @@ pub fn update_proposal_voting_closed(
         proposal.eta = eta;
         proposal.votes = votes;
 
-        env.update(
-            &proposal,
-            &[
-                Condition::ColumnEqualTo("contract".into(), contract.to_xdr(Limits::none()).unwrap()),
-                Condition::ColumnEqualTo("prop_num".into(), prop_num.to_xdr(Limits::none()).unwrap()),
-            ],
-        );
+        env.update()
+            .column_equal_to_bytes(
+                "contract",
+                contract.to_xdr(Limits::none()).unwrap().as_slice(),
+            )
+            .column_equal_to_bytes(
+                "prop_num",
+                prop_num.to_xdr(Limits::none()).unwrap().as_slice(),
+            )
+            .execute(&proposal)
+            .unwrap();
+        Ok(())
+    } else {
+        Err(GovernorError::ProposalNotFound)
+    }
+}
+
+pub fn update_proposal_execution_hash(
+    env: &EnvClient,
+    execution_hash: ScVal,
+    contract: Hash,
+    prop_num: ScVal,
+) -> Result<(), GovernorError> {
+    let proposals = env.read::<Proposal>();
+    // TODO: Update to only change a single row
+    if let Some(proposal) = proposals
+        .iter()
+        .find(|p| p.prop_num == prop_num && p.contract == contract)
+    {
+        let mut proposal = proposal.clone();
+        proposal.proposal_execution_hash = execution_hash;
+
+        env.update()
+            .column_equal_to_bytes(
+                "contract",
+                contract.to_xdr(Limits::none()).unwrap().as_slice(),
+            )
+            .column_equal_to_bytes(
+                "prop_num",
+                prop_num.to_xdr(Limits::none()).unwrap().as_slice(),
+            )
+            .execute(&proposal)
+            .unwrap();
         Ok(())
     } else {
         Err(GovernorError::ProposalNotFound)

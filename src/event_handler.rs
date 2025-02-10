@@ -1,5 +1,5 @@
-use rs_zephyr_sdk::{
-    stellar_xdr::next::{ContractEventV0, Hash, ScVal},
+use zephyr_sdk::{
+    soroban_sdk::xdr::{ContractEventV0, Hash, ScVal},
     utils, EnvClient,
 };
 
@@ -79,11 +79,7 @@ pub fn handle_vote_cast(
 ///
 /// - topics - `["proposal_created", proposal_id: u32, proposer: Address]`
 /// - data - `[title: String, desc: String, action: ProposalAction, vote_start: u32, vote_end: u32]`
-pub fn handle_proposal_created(
-    env: &EnvClient,
-    contract_id: Hash,
-    event: &ContractEventV0,
-) {
+pub fn handle_proposal_created(env: &EnvClient, contract_id: Hash, event: &ContractEventV0) {
     let proposal_number = match event.topics.get(1).cloned() {
         Some(topic) => topic,
         None => return,
@@ -127,6 +123,7 @@ pub fn handle_proposal_created(
                 v_end: vote_end,
                 eta: ScVal::U32(0),
                 votes: ScVal::Void,
+                proposal_execution_hash: ScVal::Void,
             };
             db::write_proposal(env, proposal);
         }
@@ -153,18 +150,13 @@ pub fn handle_proposal_updated(
     let _ = db::update_proposal_status(env, status, contract_id, proposal_number);
 }
 
-
 /// Handle proposal voting closed
 ///
 /// Returns None if the event is not a proposal status update event
 ///
 /// - topics - `["proposal_voting_closed", proposal_id: u32, status: u32, eta: u32]`
 /// - data - `final_votes: VoteCount`
-pub fn handle_proposal_voting_closed(
-    env: &EnvClient,
-    contract_id: Hash,
-    event: &ContractEventV0,
-) {
+pub fn handle_proposal_voting_closed(env: &EnvClient, contract_id: Hash, event: &ContractEventV0) {
     let proposal_number = match event.topics.get(1).cloned() {
         Some(topic) => topic,
         None => return,
@@ -179,5 +171,14 @@ pub fn handle_proposal_voting_closed(
     };
     let votes = event.data.clone();
 
-    let _ = db::update_proposal_voting_closed(env, status, eta, votes, contract_id, proposal_number);
+    let _ =
+        db::update_proposal_voting_closed(env, status, eta, votes, contract_id, proposal_number);
+}
+
+pub fn handle_proposal_executed(env: &EnvClient, contract_id: Hash, event: &ContractEventV0) {
+    let proposal_number = match event.topics.get(1).cloned() {
+        Some(topic) => topic,
+        None => return,
+    };
+    let _ = db::update_proposal_execution_hash(env, ScVal::U32(4), contract_id, proposal_number);
 }

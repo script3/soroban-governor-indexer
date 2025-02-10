@@ -1,5 +1,5 @@
-use rs_zephyr_sdk::{
-    stellar_xdr::next::{ContractEventBody, ScVal, TransactionMeta},
+use zephyr_sdk::{
+    soroban_sdk::xdr::{ContractEventBody, ScVal, TransactionMeta},
     EnvClient,
 };
 
@@ -62,6 +62,12 @@ pub extern "C" fn on_close() {
                                             );
                                         } else if topic0 == &event_types.proposal_voting_closed {
                                             event_handler::handle_proposal_voting_closed(
+                                                &env,
+                                                contract_id,
+                                                &v0,
+                                            );
+                                        } else if topic0 == &event_types.proposal_executed {
+                                            event_handler::handle_proposal_executed(
                                                 &env,
                                                 contract_id,
                                                 &v0,

@@ -47,6 +47,9 @@ col_type = "BYTEA"
 name = "votes"
 col_type = "BYTEA"
 
+[[tables.columns]]
+name = "proposal_execution_hash"
+col_type = "BYTEA"
 
 [[tables]]
 name = "votes"
